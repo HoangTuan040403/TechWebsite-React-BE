@@ -1,33 +1,39 @@
 const UserService = require('../service/UserService')
 const JwtService = require('../service/JwtService')
-const User = require('../models/UserModel')
+const { isValidEmail } = require('../utils/validate') // Helper kiểm tra email
 
 const createUser = async (req, res) => {
     try {
         const { email, password, confirmPassword } = req.body
-        const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-        const isCheckEmail = reg.test(email)
+
         if (!email || !password || !confirmPassword) {
-            return res.status(ERR).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The input is required'
-            })
-        } else if (!isCheckEmail) {
-            return res.status(ERR).json({
-                status: 'ERR',
-                message: 'The input is email'
-            })
-        } else if (password !== confirmPassword) {
-            return res.status(ERR).json({
-                status: 'ERR',
-                message: 'The password is equal confirmPassword'
+                message: 'Email, password, and confirmPassword are required.'
             })
         }
+
+        if (!isValidEmail(email)) {
+            return res.status(400).json({
+                status: 'ERR',
+                message: 'Email format is invalid.'
+            })
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                status: 'ERR',
+                message: 'Password and confirmPassword do not match.'
+            })
+        }
+
         const response = await UserService.createUser(req.body)
-        return res.status(200).json(response)
+        return res.status(201).json(response)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
@@ -35,53 +41,59 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
-        const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-        const isCheckEmail = reg.test(email)
+
         if (!email || !password) {
-            return res.status(200).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The input is required'
-            })
-        } else if (!isCheckEmail) {
-            return res.status(200).json({
-                status: 'ERR',
-                message: 'The input is email'
+                message: 'Email and password are required.'
             })
         }
-        const response = await UserService.loginUser(req.body)
-        const { refresh_token, ...newReponse } = response
-        // console.log('response', response)
-        res.cookie('refresh_token', refresh_token, {
-            HttpOnly: true,
-            secure: false,
-            samesite: 'strict'
 
+        if (!isValidEmail(email)) {
+            return res.status(400).json({
+                status: 'ERR',
+                message: 'Email format is invalid.'
+            })
+        }
+
+        const response = await UserService.loginUser(req.body)
+        const { refresh_token, ...rest } = response
+
+        res.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
         })
-        return res.status(200).json(newReponse)
+
+        return res.status(200).json(rest)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(401).json({
+            status: 'ERR',
+            message: e.message || 'Authentication failed'
         })
     }
 }
-
 
 const updateUser = async (req, res) => {
     try {
         const userId = req.params.id
         const data = req.body
+
         if (!userId) {
-            return res.status(200).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The input is required'
+                message: 'User ID is required.'
             })
         }
-        console.log('userId', userId)
+
         const response = await UserService.updateUser(userId, data)
         return res.status(200).json(response)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
@@ -89,20 +101,21 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id
-        // const token = req.headers
 
         if (!userId) {
-            return res.status(200).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The input is required'
+                message: 'User ID is required.'
             })
         }
-        console.log('userId', userId)
+
         const response = await UserService.deleteUser(userId)
         return res.status(200).json(response)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
@@ -110,20 +123,21 @@ const deleteUser = async (req, res) => {
 const deleteMany = async (req, res) => {
     try {
         const ids = req.body
-        // const token = req.headers
 
-        if (!ids) {
-            return res.status(200).json({
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The ids is required'
+                message: 'An array of IDs is required.'
             })
         }
 
         const response = await UserService.deleteManyUser(ids)
         return res.status(200).json(response)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
@@ -132,74 +146,71 @@ const getAllUser = async (req, res) => {
     try {
         const response = await UserService.getAllUser()
         return res.status(200).json(response)
-
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
-
 
 const getDetailsUser = async (req, res) => {
     try {
         const userId = req.params.id
 
-
         if (!userId) {
-            return res.status(200).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The input is required'
+                message: 'User ID is required.'
             })
         }
-        console.log('userId', userId)
+
         const response = await UserService.getDetailsUser(userId)
         return res.status(200).json(response)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
 
-
-
-
-
-
 const refreshToken = async (req, res) => {
-    console.log('req.cookies.refresh_token', req.cookies.refresh_token)
     try {
         const token = req.cookies.refresh_token
+
         if (!token) {
-            return res.status(200).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The token is required'
+                message: 'Refresh token is required.'
             })
         }
 
         const response = await JwtService.refreshTokenJwtService(token)
         return res.status(200).json(response)
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(401).json({
+            status: 'ERR',
+            message: e.message || 'Invalid refresh token'
         })
     }
 }
 
-
-
 const logoutUser = async (req, res) => {
-    console.log('req.cookies.refresh_token', req.cookies.refresh_token)
     try {
         res.clearCookie('refresh_token')
         return res.status(200).json({
             status: 'OK',
-            message: 'Logout successfully'
+            message: 'Logout successful'
         })
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        console.error(e)
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message || 'Internal server error'
         })
     }
 }
