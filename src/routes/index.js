@@ -16,6 +16,8 @@ const CategoryRouter = require('./CategoryRouter');
 const CategoryChildRouter = require('./CategoryChildRouter');
 const RomProductRouter = require('./RomProductRouter');
 const ReviewProductRouter = require('./ReviewProductRouter');
+const ColorProductRouter = require('./ColorProductRouter');
+
 
 
 
@@ -29,6 +31,7 @@ const routes = (app) => {
     app.use('/api/categories-child', CategoryChildRouter);
     app.use('/api/rom-product', RomProductRouter);
     app.use('/api/reviews', ReviewProductRouter);
+    app.use('/api/color-product', ColorProductRouter);
 
 
 
