@@ -1,65 +1,77 @@
 const { Error } = require('mongoose')
 const CategoryService = require('../service/CategoryService')
 
-
 const createCategory = async (req, res) => {
     try {
-        const { name, image, description } = req.body
+        const { name } = req.body;
+        const image = req.file ? req.file.path : null;  // Đảm bảo rằng bạn chỉ lấy đường dẫn của tệp hình ảnh nếu có
 
         if (!name) {
-            return res.status(ERR).json({
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The input is required'
-            })
+                message: 'Name is required'
+            });
         }
-        const response = await CategoryService.createCategory(req.body)
-        return res.status(200).json(response)
+
+        // Gọi service để tạo danh mục
+        const response = await CategoryService.createCategory({ name, image });
+        return res.status(200).json(response);
     } catch (e) {
-        return res.status(404).json({
-            message: e
-        })
+        return res.status(500).json({
+            message: e.message || 'An error occurred while creating the category.'
+        });
     }
 }
 
 
 const updateCategory = async (req, res) => {
     try {
-        const caetId = req.params.id
-        const data = req.body
-        if (!caetId) {
-            return res.status(200).json({
+        const { id } = req.params; // Lấy id danh mục từ URL
+        const { name } = req.body;
+        const image = req.file ? req.file.path : null;
+
+        if (!id) {
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The categoryid is required'
-            })
+                message: 'Category ID is required'
+            });
         }
 
-        const response = await CategoryService.updateCategory(caetId, data)
-        return res.status(200).json(response)
+        const updatedData = {};
+        if (name) updatedData.name = name;
+        if (image) updatedData.image = image;
+
+        const response = await CategoryService.updateCategory(id, updatedData);
+        return res.status(200).json(response);
     } catch (e) {
-        return res.status(404).json({
-            message: e
-        })
+        return res.status(500).json({
+            message: e.message || 'An error occurred while updating the category.'
+        });
     }
-}
+};
 
 
 const deleteCategory = async (req, res) => {
     try {
-        const productId = req.params.id
-        if (!productId) {
-            return res.status(200).json({
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
                 status: 'ERR',
-                message: 'The productId is required'
-            })
+                message: 'Category ID is required'
+            });
         }
-        const response = await ProductService.deleteProduct(productId)
-        return res.status(200).json(response)
-    } catch (e) {
-        return res.status(404).json({
-            message: e
-        })
+
+        const response = await CategoryService.deleteCategory(id);
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            status: 'ERROR',
+            message: error.message || 'An error occurred while deleting the category.'
+        });
     }
-}
+};
+
 
 
 const deleteMany = async (req, res) => {
