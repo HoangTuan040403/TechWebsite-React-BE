@@ -94,10 +94,43 @@ const authMiddleware = (req, res, next) => {
 
 
 
-const authUserMiddleware = (req, res, next) => {
-    const tokenHeader = req.headers.token;
+// const authUserMiddleware = (req, res, next) => {
+//     const tokenHeader = req.headers.token;
 
-    if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
+//     if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
+//         return res.status(401).json({
+//             message: 'Token không hợp lệ hoặc không tồn tại',
+//             status: 'ERROR'
+//         });
+//     }
+
+//     const token = tokenHeader.split(' ')[1];
+//     const userId = req.params.id;
+
+//     jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
+//         if (err) {
+//             return res.status(401).json({
+//                 message: 'Token không hợp lệ',
+//                 status: 'ERROR'
+//             });
+//         }
+
+//         if (user?.isAdmin || user.id === userId) {
+//             req.user = user;
+//             next();
+//         } else {
+//             return res.status(403).json({
+//                 message: 'Không có quyền truy cập',
+//                 status: 'ERROR'
+//             });
+//         }
+//     });
+// };
+// Middleware xác thực người dùng
+const authUserMiddleware = (req, res, next) => {
+    const tokenHeader = req.headers.authorization;
+
+    if (!tokenHeader || !tokenHeader.startsWith('Bearer ')) {
         return res.status(401).json({
             message: 'Token không hợp lệ hoặc không tồn tại',
             status: 'ERROR'
@@ -105,7 +138,6 @@ const authUserMiddleware = (req, res, next) => {
     }
 
     const token = tokenHeader.split(' ')[1];
-    const userId = req.params.id;
 
     jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
         if (err) {
@@ -115,18 +147,10 @@ const authUserMiddleware = (req, res, next) => {
             });
         }
 
-        if (user?.isAdmin || user.id === userId) {
-            req.user = user;
-            next();
-        } else {
-            return res.status(403).json({
-                message: 'Không có quyền truy cập',
-                status: 'ERROR'
-            });
-        }
+        req.user = user; // 👈 Phải có dòng này để tạo req.user._id
+        next();
     });
 };
-
 module.exports = {
     authMiddleware,
     authUserMiddleware
