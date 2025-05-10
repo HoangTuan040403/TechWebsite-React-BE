@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const CategoryController = require('../controllers/CategoryController');
 const { authMiddleware } = require("../middleware/authMiddleware");
-
+const upload = require('../middleware/multer');
 /**
  * @swagger
  * tags:
@@ -25,15 +25,16 @@ const { authMiddleware } = require("../middleware/authMiddleware");
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
+ *                 description: Tên danh mục
  *               image:
  *                 type: string
+ *                 format: binary
+ *                 description: Ảnh của danh mục
  *     responses:
  *       200:
- *         description: Danh mục đã được tạo
+ *         description: Danh mục đã được tạo thành công
  */
-router.post('/create', authMiddleware, CategoryController.createCategory);
+router.post('/create', authMiddleware, upload.single('image'), CategoryController.createCategory);
 
 /**
  * @swagger
@@ -50,21 +51,20 @@ router.post('/create', authMiddleware, CategoryController.createCategory);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
  *               image:
  *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Danh mục đã được cập nhật
  */
-router.put('/update/:id', authMiddleware, CategoryController.updateCategory);
+router.put('/update/:id', authMiddleware, upload.single('image'), CategoryController.updateCategory);
 
 /**
  * @swagger

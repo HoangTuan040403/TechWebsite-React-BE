@@ -5,97 +5,81 @@ const Category = require("../models/CategoryModel")
 
 const createCategory = (newCate) => {
     return new Promise(async (resolve, reject) => {
+        const { name, image } = newCate;
 
-        const { name, image, description } = newCate
         try {
-            const checkProduct = await Category.findOne({
-                name: name
-            })
-            if (checkProduct !== null) {
+            const checkCategory = await Category.findOne({ name });
+            if (checkCategory) {
                 resolve({
                     status: 'ERR',
-                    message: 'The name of product is already'
-                })
+                    message: 'Category with this name already exists'
+                });
+                return;
             }
 
-            const newCate = await Category.create({
-                name, image, description
-
-            })
-            if (newCate) {
+            const createdCategory = await Category.create({ name, image });
+            if (createdCategory) {
                 resolve({
                     status: 'OK',
                     message: 'SUCCESS',
-                    data: newCate
-                })
+                    data: createdCategory
+                });
             }
-
+        } catch (e) {
+            reject(e);
         }
-        catch (e) {
-            reject(e)
-        }
-    })
-}
+    });
+};
 
 
 
-const updateCategory = (id, data) => {
+const updateCategory = async (id, updatedData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkCate = await Category.findOne({
-                _id: id
-            })
-
-            if (checkCate === null) {
-                resolve({
-                    status: 'OK',
-                    message: 'The product is not defined'
-                })
+            const existingCategory = await Category.findById(id);
+            if (!existingCategory) {
+                return resolve({
+                    status: 'ERR',
+                    message: 'Category not found'
+                });
             }
-            const updatedCategory = await Category.findByIdAndUpdate(id, data, { new: true })
 
+            const updatedCategory = await Category.findByIdAndUpdate(id, updatedData, { new: true });
             resolve({
                 status: 'OK',
-                message: 'SUCCESS',
+                message: 'Category updated successfully',
                 data: updatedCategory
-
-            })
-
+            });
+        } catch (error) {
+            reject(error);
         }
-        catch (e) {
-            reject(e)
-        }
-    })
-}
+    });
+};
 
 
 
-const deleteCategory = (id) => {
+const deleteCategory = async (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkCate = await Category.findOne({
-                _id: id
-            })
-            if (checkCate === null) {
-                resolve({
-                    status: 'OK',
-                    message: 'The caetegory is not defined'
-                })
+            const existingCategory = await Category.findById(id);
+            if (!existingCategory) {
+                return resolve({
+                    status: 'ERR',
+                    message: 'Category not found'
+                });
             }
-            await Category.findByIdAndDelete(id)
+
+            await Category.findByIdAndDelete(id);
             resolve({
                 status: 'OK',
-                message: 'Delete category success',
-
-
-            })
-
+                message: 'Category deleted successfully'
+            });
+        } catch (error) {
+            reject(error);
         }
-        catch (e) {
-            reject(e)
-        }
-    })
-}
+    });
+};
+
 
 const deleteManyCategory = (ids) => {
     console.log('id', ids)
