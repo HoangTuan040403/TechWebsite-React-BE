@@ -23,6 +23,7 @@ const express = require("express");
 const router = express.Router();
 const ProductController = require('../controllers/ProductController');
 const { authMiddleware } = require("../middleware/authMiddleware");
+const upload = require("../middleware/multer");
 
 /**
  * @swagger
@@ -40,7 +41,7 @@ const { authMiddleware } = require("../middleware/authMiddleware");
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -50,13 +51,18 @@ const { authMiddleware } = require("../middleware/authMiddleware");
  *                 type: number
  *               description:
  *                 type: string
- *               category:
+ *               categoryId:
  *                 type: string
+ *               countInStock:
+ *                  type: number
+ *               image:
+ *                  type: string
+ *                  format: binary
  *     responses:
  *       200:
  *         description: Sản phẩm đã được tạo
  */
-router.post('/create', ProductController.createProduct);
+router.post('/create', authMiddleware, upload.single('image'), ProductController.createProduct);
 
 /**
  * @swagger
@@ -65,16 +71,38 @@ router.post('/create', ProductController.createProduct);
  *     summary: Cập nhật sản phẩm
  *     tags: [Products]
  *     parameters:
- *       - name: id
- *         in: path
+ *       - in: path
+ *         name: id
  *         required: true
+ *         description: ID sản phẩm
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               description:
+ *                 type: string
+ *               categoryId:
+ *                 type: string
+ *                 description: Bắt buộc
+ *               countInStock:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
- *         description: Sản phẩm đã được cập nhật
+ *         description: Cập nhật sản phẩm thành công
  */
-router.put('/update/:id', authMiddleware, ProductController.updateProduct);
+router.put('/update/:id', authMiddleware, upload.single('image'), ProductController.updateProduct);
 
 /**
  * @swagger
