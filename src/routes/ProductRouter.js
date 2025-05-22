@@ -28,16 +28,16 @@ const upload = require("../middleware/multer");
 /**
  * @swagger
  * tags:
- *   name: Products
+ *   name: product
  *   description: API quản lý sản phẩm
  */
 
 /**
  * @swagger
- * /api/products/create:
+ * /api/product/create:
  *   post:
  *     summary: Tạo sản phẩm mới
- *     tags: [Products]
+ *     tags: [product]
  *     requestBody:
  *       required: true
  *       content:
@@ -66,10 +66,10 @@ router.post('/create', authMiddleware, upload.single('image'), ProductController
 
 /**
  * @swagger
- * /api/products/update/{id}:
+ * /api/product/update/{id}:
  *   put:
  *     summary: Cập nhật sản phẩm
- *     tags: [Products]
+ *     tags: [product]
  *     parameters:
  *       - in: path
  *         name: id
@@ -106,10 +106,10 @@ router.put('/update/:id', authMiddleware, upload.single('image'), ProductControl
 
 /**
  * @swagger
- * /api/products/get-details/{id}:
+ * /api/product/get-details/{id}:
  *   get:
  *     summary: Lấy chi tiết sản phẩm
- *     tags: [Products]
+ *     tags: [product]
  *     parameters:
  *       - name: id
  *         in: path
@@ -124,10 +124,10 @@ router.get('/get-details/:id', ProductController.getDetailsProduct);
 
 /**
  * @swagger
- * /api/products/delete/{id}:
+ * /api/product/delete/{id}:
  *   delete:
  *     summary: Xoá sản phẩm theo ID
- *     tags: [Products]
+ *     tags: [product]
  *     parameters:
  *       - name: id
  *         in: path
@@ -142,10 +142,10 @@ router.delete('/delete/:id', authMiddleware, ProductController.deleteProduct);
 
 /**
  * @swagger
- * /api/products/get-all:
+ * /api/product/get-all:
  *   get:
  *     summary: Lấy danh sách tất cả sản phẩm
- *     tags: [Products]
+ *     tags: [product]
  *     responses:
  *       200:
  *         description: Danh sách sản phẩm
@@ -154,10 +154,10 @@ router.get('/get-all', ProductController.getAllProduct);
 
 /**
  * @swagger
- * /api/products/delete-many:
+ * /api/product/delete-many:
  *   delete:
  *     summary: Xoá nhiều sản phẩm
- *     tags: [Products]
+ *     tags: [product]
  *     requestBody:
  *       required: true
  *       content:
@@ -177,10 +177,10 @@ router.delete('/delete-many', authMiddleware, ProductController.deleteMany);
 
 /**
  * @swagger
- * /api/products/get-all-type:
+ * /api/product/get-all-type:
  *   get:
  *     summary: Lấy tất cả loại sản phẩm
- *     tags: [Products]
+ *     tags: [product]
  *     responses:
  *       200:
  *         description: Danh sách loại sản phẩm

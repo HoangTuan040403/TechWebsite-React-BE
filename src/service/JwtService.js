@@ -54,8 +54,13 @@ const refreshTokenJwtService = (token) => {
     })
 
 }
+
+const generateEmailToken = (email) => {
+    return jwt.sign({ email }, process.env.EMAIL_TOKEN_SECRET, { expiresIn: '1d' });
+}
 module.exports = {
     genneralAccessToken,
     genneralRefreshToken,
-    refreshTokenJwtService
+    refreshTokenJwtService,
+    generateEmailToken
 }
