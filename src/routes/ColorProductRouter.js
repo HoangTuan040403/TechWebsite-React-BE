@@ -25,10 +25,7 @@ const upload = require('../middleware/multer');
  *             properties:
  *               name:
  *                 type: string
- *                 description: Tên danh mục
- *               image:
- *                  type: string
- *                  format: binary
+ *                 description: Tên danh mục            
  *               productId:
  *                 type: string
  *     responses:
@@ -58,9 +55,6 @@ router.post('/create', authMiddleware, upload.single('image'), ColorProduct.crea
  *             properties:
  *               name:
  *                 type: string
- *               image:
- *                  type: string
- *                  format: binary
  *     responses:
  *       200:
  *         description: Màu sản phẩm đã được cập nhật

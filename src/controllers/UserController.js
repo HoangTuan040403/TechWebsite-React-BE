@@ -2,41 +2,101 @@ const UserService = require('../service/UserService')
 const JwtService = require('../service/JwtService')
 const { isValidEmail } = require('../utils/validate') // Helper kiểm tra email
 
+// const createUser = async (req, res) => {
+//     try {
+//         const { email, password, confirmPassword } = req.body
+
+//         if (!email || !password || !confirmPassword) {
+//             return res.status(400).json({
+//                 status: 'ERR',
+//                 message: 'Email, password, and confirmPassword are required.'
+//             })
+//         }
+
+//         if (!isValidEmail(email)) {
+//             return res.status(400).json({
+//                 status: 'ERR',
+//                 message: 'Email format is invalid.'
+//             })
+//         }
+
+//         if (password !== confirmPassword) {
+//             return res.status(400).json({
+//                 status: 'ERR',
+//                 message: 'Password and confirmPassword do not match.'
+//             })
+//         }
+
+//         const response = await UserService.createUser(req.body)
+//         return res.status(201).json(response)
+//     } catch (e) {
+//         console.error(e)
+//         return res.status(500).json({
+//             status: 'ERR',
+//             message: e.message || 'Internal server error'
+//         })
+//     }
+// }
 const createUser = async (req, res) => {
     try {
-        const { email, password, confirmPassword } = req.body
-
-        if (!email || !password || !confirmPassword) {
-            return res.status(400).json({
-                status: 'ERR',
-                message: 'Email, password, and confirmPassword are required.'
-            })
+        const result = await UserService.createUser(req.body);
+        if (result.status === 'ERR') {
+            return res.status(400).json(result);
         }
-
-        if (!isValidEmail(email)) {
-            return res.status(400).json({
-                status: 'ERR',
-                message: 'Email format is invalid.'
-            })
-        }
-
-        if (password !== confirmPassword) {
-            return res.status(400).json({
-                status: 'ERR',
-                message: 'Password and confirmPassword do not match.'
-            })
-        }
-
-        const response = await UserService.createUser(req.body)
-        return res.status(201).json(response)
-    } catch (e) {
-        console.error(e)
-        return res.status(500).json({
-            status: 'ERR',
-            message: e.message || 'Internal server error'
-        })
+        return res.status(201).json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 'ERR', message: 'Internal Server Error' });
     }
-}
+};
+
+const verifyEmail = async (req, res) => {
+    try {
+        const token = req.query.token;
+        if (!token) {
+            return res.status(400).send('<h2 style="color:red">Thiếu token xác minh.</h2>');
+        }
+
+        const decoded = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
+
+        // Tùy vào hệ thống, bạn có thể cập nhật user là "đã xác minh":
+        // await User.findOneAndUpdate({ email: decoded.email }, { emailVerified: true });
+
+        return res.send('<h2 style="color:green">Xác minh email thành công!</h2>');
+    } catch (error) {
+        console.error('Lỗi xác minh:', error.message);
+        return res.status(400).send('<h2 style="color:red">Token không hợp lệ hoặc đã hết hạn!</h2>');
+    }
+};
+
+
+const forgotPassword = async (req, res) => {
+    try {
+        const result = await UserService.forgotPassword(req.body.email);
+        if (result.status === 'ERR') {
+            return res.status(400).json(result);
+        }
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 'ERR', message: 'Internal Server Error' });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+        const result = await UserService.resetPassword(token, newPassword);
+        if (result.status === 'ERR') {
+            return res.status(400).json(result);
+        }
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 'ERR', message: 'Internal Server Error' });
+    }
+};
 
 const loginUser = async (req, res) => {
     try {
@@ -224,5 +284,8 @@ module.exports = {
     getDetailsUser,
     refreshToken,
     logoutUser,
-    deleteMany
+    deleteMany,
+    verifyEmail,
+    forgotPassword,
+    resetPassword
 }

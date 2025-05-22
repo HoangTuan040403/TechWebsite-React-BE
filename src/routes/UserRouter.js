@@ -1,32 +1,9 @@
-// const express = require("express");
-// const router = express.Router()
-// const userController = require('../controllers/UserController');
-// const { authMiddleware, authUserMiddleware } = require("../middleware/authMiddleware");
-
-// router.post('/sign-up', userController.createUser)
-// router.post('/sign-in', userController.loginUser)
-// router.post('/log-out', userController.logoutUser)
-// router.put('/update-user/:id', authUserMiddleware, userController.updateUser)
-// router.delete('/delete-user/:id', authMiddleware, userController.deleteUser)
-// router.get('/getAll', authMiddleware, userController.getAllUser)
-// router.get('/get-details/:id', authUserMiddleware, userController.getDetailsUser)
-// router.post('/refresh-token', userController.refreshToken)
-// router.post('/delete-many', authMiddleware, userController.deleteMany)
-
-
-
-
-
-// module.exports = router
-
-
-
-
 
 const express = require("express");
 const router = express.Router()
 const userController = require('../controllers/UserController');
 const { authMiddleware, authUserMiddleware } = require("../middleware/authMiddleware");
+const upload = require("../middleware/multer");
 
 /**
  * @swagger
@@ -44,25 +21,112 @@ const { authMiddleware, authUserMiddleware } = require("../middleware/authMiddle
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
- *               - fullName
+ *               - name
  *               - email
  *               - password
+ *               - confirmPassword
+ *               - phone
  *             properties:
- *               fullName:
+ *               name:
  *                 type: string
  *               email:
  *                 type: string
  *               password:
  *                 type: string
+ *               confirmPassword:
+ *                 type: string
+ *               phone:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Đăng ký thành công
  */
-router.post('/sign-up', userController.createUser)
+
+router.post('/sign-up', upload.none(), userController.createUser)
+/**
+ * @swagger
+ * /api/users/verify-email:
+ *   get:
+ *     summary: Xác minh địa chỉ email người dùng
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Mã token xác minh email
+ *     responses:
+ *       200:
+ *         description: Xác minh email thành công
+ *       400:
+ *         description: Token không hợp lệ hoặc đã hết hạn
+ */
+router.get('/verify-email', userController.verifyEmail);
+
+/**
+ * @swagger
+ * /api/users/forgot-password:
+ *   post:
+ *     summary: Gửi email để đặt lại mật khẩu
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: Email đặt lại mật khẩu đã được gửi
+ *       400:
+ *         description: Email không tồn tại
+ */
+router.post('/forgot-password', upload.none(), userController.forgotPassword);
+
+/**
+ * @swagger
+ * /api/users/reset-password/{token}:
+ *   post:
+ *     summary: Đặt lại mật khẩu với token
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Token xác minh từ email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 example: NewSecurePassword123
+ *     responses:
+ *       200:
+ *         description: Mật khẩu đã được thay đổi thành công
+ *       400:
+ *         description: Token không hợp lệ hoặc đã hết hạn
+ */
+router.post('/reset-password/:token', upload.none(), userController.resetPassword);
+
 
 /**
  * @swagger
@@ -73,7 +137,7 @@ router.post('/sign-up', userController.createUser)
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -88,7 +152,7 @@ router.post('/sign-up', userController.createUser)
  *       200:
  *         description: Đăng nhập thành công
  */
-router.post('/sign-in', userController.loginUser)
+router.post('/sign-in', upload.none(), userController.loginUser)
 
 /**
  * @swagger
