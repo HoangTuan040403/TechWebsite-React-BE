@@ -124,6 +124,16 @@ const getAllProduct = async (req, res) => {
     }
 }
 
+const getNewArrivals = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const response = await ProductService.getNewArrivals(limit);
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi máy chủ', error });
+    }
+};
+
 const getAllType = async (req, res) => {
     try {
 
@@ -144,6 +154,7 @@ module.exports = {
     deleteProduct,
     getAllProduct,
     deleteMany,
-    getAllType
+    getAllType,
+    getNewArrivals
 
 }

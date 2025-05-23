@@ -267,5 +267,51 @@ router.post('/refresh-token', userController.refreshToken)
  */
 router.post('/delete-many', authMiddleware, userController.deleteMany)
 
+/**
+ * @swagger
+ * /api/users/recently-viewed:
+ *   post:
+ *     summary: Thêm sản phẩm vào danh sách đã xem gần đây
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               productId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Thành công
+ *       500:
+ *         description: Lỗi server
+ */
+router.post('/recently-viewed', upload.none(), authUserMiddleware, userController.addRecentlyViewed);
+
+/**
+ * @swagger
+ * /api/users/recently-viewed/{userId}:
+ *   get:
+ *     summary: Lấy danh sách sản phẩm đã xem gần đây
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của người dùng
+ *     responses:
+ *       200:
+ *         description: Thành công
+ *       500:
+ *         description: Lỗi server
+ */
+router.get('/recently-viewed/:userId', authUserMiddleware, userController.getRecentlyViewed);
+
 module.exports = router
 

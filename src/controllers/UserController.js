@@ -275,6 +275,29 @@ const logoutUser = async (req, res) => {
     }
 }
 
+
+const addRecentlyViewed = async (req, res) => {
+    try {
+        const { userId, productId } = req.body;
+        const viewed = await UserService.updateRecentlyViewed(userId, productId);
+        return res.status(200).json({ success: true, recentlyViewed: viewed });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const getRecentlyViewed = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const products = await UserService.getRecentlyViewed(userId);
+        return res.status(200).json({ success: true, recentlyViewed: products });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     createUser,
     loginUser,
@@ -287,5 +310,7 @@ module.exports = {
     deleteMany,
     verifyEmail,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    addRecentlyViewed,
+    getRecentlyViewed
 }
