@@ -341,6 +341,29 @@ const getDetailsUser = (id) => {
     })
 }
 
+//Lấy sản phẩm vừa xem
+const updateRecentlyViewed = async (userId, productId) => {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    user.recentlyViewed = user.recentlyViewed.filter(
+        id => id.toString() !== productId
+    );
+    user.recentlyViewed.unshift(productId);
+    if (user.recentlyViewed.length > 10) {
+        user.recentlyViewed = user.recentlyViewed.slice(0, 10);
+    }
+
+    await user.save();
+    return user.recentlyViewed;
+};
+
+const getRecentlyViewed = async (userId) => {
+    const user = await User.findById(userId).populate('recentlyViewed');
+    if (!user) throw new Error('User not found');
+    return user.recentlyViewed;
+};
+
 module.exports = {
     createUser,
     loginUser,
@@ -351,5 +374,7 @@ module.exports = {
     deleteManyUser,
     verifyEmail,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateRecentlyViewed,
+    getRecentlyViewed,
 }

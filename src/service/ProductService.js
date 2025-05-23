@@ -192,7 +192,35 @@ const getDetailsProduct = (id) => {
         }
     })
 }
+const getNewArrivals = (limit = 10) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Tính ngày 30 ngày trước
+            const date30DaysAgo = new Date();
+            date30DaysAgo.setDate(date30DaysAgo.getDate() - 30);
 
+            const query = {
+                createdAt: { $gte: date30DaysAgo }
+            };
+
+            const totalProduct = await Product.countDocuments(query);
+
+            const newArrivals = await Product.find(query)
+                .sort({ createdAt: -1 }) // Mới nhất trước
+                .limit(limit);
+
+            resolve({
+                status: 'OK',
+                message: 'Success',
+                data: newArrivals,
+                total: totalProduct,
+                totalArrival: newArrivals.length,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
 
 
 const getAllType = () => {
@@ -226,6 +254,7 @@ module.exports = {
     deleteProduct,
     getAllProduct,
     deleteManyProduct,
-    getAllType
+    getAllType,
+    getNewArrivals
 
 }

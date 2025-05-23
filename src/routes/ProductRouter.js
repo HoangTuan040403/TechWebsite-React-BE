@@ -154,6 +154,18 @@ router.get('/get-all', ProductController.getAllProduct);
 
 /**
  * @swagger
+ * /api/product/get-allarrivals:
+ *   get:
+ *     summary: Lấy danh sách tất cả sản phẩm
+ *     tags: [product]
+ *     responses:
+ *       200:
+ *         description: Danh sách sản phẩm
+ */
+router.get('/get-allarrivals', ProductController.getNewArrivals);
+
+/**
+ * @swagger
  * /api/product/delete-many:
  *   delete:
  *     summary: Xoá nhiều sản phẩm

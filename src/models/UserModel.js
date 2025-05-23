@@ -31,7 +31,8 @@ const userSchema = new mongoose.Schema(
         address: { type: String },
         isVerified: { type: Boolean, default: false },
         resetPasswordToken: { type: String },
-        resetPasswordExpires: { type: Date }
+        resetPasswordExpires: { type: Date },
+        recentlyViewed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
 
     },
     {
