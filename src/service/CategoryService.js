@@ -3,33 +3,37 @@ const Category = require("../models/CategoryModel")
 
 
 
-const createCategory = (newCate) => {
-    return new Promise(async (resolve, reject) => {
-        const { name, image } = newCate;
+const createCategory = async (newCate) => {
+    const { name, image } = newCate;
 
-        try {
-            const checkCategory = await Category.findOne({ name });
-            if (checkCategory) {
-                resolve({
-                    status: 'ERR',
-                    message: 'Category with this name already exists'
-                });
-                return;
-            }
-
-            const createdCategory = await Category.create({ name, image });
-            if (createdCategory) {
-                resolve({
-                    status: 'OK',
-                    message: 'SUCCESS',
-                    data: createdCategory
-                });
-            }
-        } catch (e) {
-            reject(e);
+    try {
+        const existingCategory = await Category.findOne({ name });
+        if (existingCategory) {
+            return {
+                status: 'ERR',
+                message: 'Danh mục với tên này đã tồn tại.',
+            };
         }
-    });
+
+        const createdCategory = await Category.create({ name, image });
+        if (!createdCategory) {
+            return {
+                status: 'ERR',
+                message: 'Không thể tạo danh mục.',
+            };
+        }
+
+        return {
+            status: 'OK',
+            message: 'Tạo danh mục thành công.',
+            data: createdCategory,
+        };
+    } catch (error) {
+        // Có thể log thêm ở đây nếu cần
+        throw error;
+    }
 };
+
 
 
 

@@ -206,7 +206,7 @@ const getNewArrivals = (limit = 10) => {
             const totalProduct = await Product.countDocuments(query);
 
             const newArrivals = await Product.find(query)
-                .sort({ createdAt: -1 }) // Mới nhất trước
+                .sort({ createdAt: -1 }) // Lấy sản phẩm mới nhất 
                 .limit(limit);
 
             resolve({

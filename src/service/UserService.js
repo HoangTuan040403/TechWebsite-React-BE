@@ -52,7 +52,6 @@ const nodemailer = require('nodemailer');
 //     })
 // }
 const createUser = async (newUser) => {
-    console.log('sendVerificationEmail:', sendVerificationEmail);
     const { name, email, password, confirmPassword, phone } = newUser;
 
     if (!email || !password || !confirmPassword || !name || !phone) {
@@ -95,7 +94,7 @@ const createUser = async (newUser) => {
     });
 
     const emailToken = jwt.sign(
-        { userId: createdUser._id },  // payload chứa userId
+        { userId: createdUser._id },  
         process.env.EMAIL_TOKEN_SECRET,
         { expiresIn: '1d' }
     );

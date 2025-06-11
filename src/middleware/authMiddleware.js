@@ -58,7 +58,7 @@ dotenv.config();
 
 const authMiddleware = (req, res, next) => {
     try {
-        const header = req.headers.authorization; // ✅ đổi từ headers.token sang headers.authorization
+        const header = req.headers.authorization; 
         if (!header || !header.startsWith('Bearer ')) {
             return res.status(401).json({
                 message: 'Token không hợp lệ hoặc không tồn tại',
@@ -92,9 +92,6 @@ const authMiddleware = (req, res, next) => {
 };
 
 
-
-
-// const authUserMiddleware = (req, res, next) => {
 //     const tokenHeader = req.headers.token;
 
 //     if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
@@ -147,7 +144,7 @@ const authUserMiddleware = (req, res, next) => {
             });
         }
 
-        req.user = user; // 👈 Phải có dòng này để tạo req.user._id
+        req.user = user;
         next();
     });
 };

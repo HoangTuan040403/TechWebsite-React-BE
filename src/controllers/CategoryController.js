@@ -1,27 +1,60 @@
 const { Error } = require('mongoose')
 const CategoryService = require('../service/CategoryService')
 
+// const createCategory = async (req, res) => {
+//     try {
+//         const { name } = req.body;
+//         const image = req.file ? req.file.path : null;  // Đảm bảo rằng bạn chỉ lấy đường dẫn của tệp hình ảnh nếu có
+
+//         if (!name) {
+//             return res.status(400).json({
+//                 status: 'ERR',
+//                 message: 'Name is required'
+//             });
+//         }
+
+//         // Gọi service để tạo danh mục
+//         const response = await CategoryService.createCategory({ name, image });
+//         return res.status(200).json(response);
+//     } catch (e) {
+//         return res.status(500).json({
+//             message: e.message || 'An error occurred while creating the category.'
+//         });
+//     }
+// }
 const createCategory = async (req, res) => {
     try {
         const { name } = req.body;
-        const image = req.file ? req.file.path : null;  // Đảm bảo rằng bạn chỉ lấy đường dẫn của tệp hình ảnh nếu có
+        const image = req.file ? req.file.path : null;
 
-        if (!name) {
+        // Kiểm tra dữ liệu đầu vào
+        if (!name || !image) {
             return res.status(400).json({
                 status: 'ERR',
-                message: 'Name is required'
+                message: 'Các trường "name" và "image" là bắt buộc.'
             });
         }
 
         // Gọi service để tạo danh mục
-        const response = await CategoryService.createCategory({ name, image });
-        return res.status(200).json(response);
-    } catch (e) {
+        const categoryData = { name, image };
+        const newCategory = await CategoryService.createCategory(categoryData);
+
+        return res.status(201).json({
+            status: 'OK',
+            message: 'Tạo danh mục thành công.',
+            data: newCategory,
+        });
+    } catch (error) {
+        console.error('Lỗi khi tạo danh mục:', error);
         return res.status(500).json({
-            message: e.message || 'An error occurred while creating the category.'
+            status: 'ERR',
+            message: 'Đã xảy ra lỗi khi tạo danh mục.',
+            error: error.message,
         });
     }
-}
+};
+
+
 
 
 const updateCategory = async (req, res) => {
