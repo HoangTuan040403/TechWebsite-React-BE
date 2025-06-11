@@ -98,6 +98,21 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const testPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+        const result = await UserService.resetPassword(token, newPassword);
+        if (result.status === 'ERR') {
+            return res.status(400).json(result);
+        }
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 'ERR', message: 'Internal Server Error' });
+    }
+};
+
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -312,5 +327,6 @@ module.exports = {
     forgotPassword,
     resetPassword,
     addRecentlyViewed,
-    getRecentlyViewed
+    getRecentlyViewed,
+    testPassword
 }
